@@ -30,11 +30,11 @@ const checkout: CheckoutEndpoint['handlers']['checkout'] = async ({
 
   //if there is a customer create a jwt token
   if (!customerId) {
-    checkoutUrl = data.checkout_url
     if (fullCheckout) {
       res.redirect(data.checkout_url)
       return
     }
+    checkoutUrl = data.embedded_checkout_url
   } else {
     const dateCreated = Math.round(new Date().getTime() / 1000)
     const payload = {
