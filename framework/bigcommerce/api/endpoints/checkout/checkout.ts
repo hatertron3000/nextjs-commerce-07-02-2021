@@ -26,8 +26,11 @@ const checkout: CheckoutEndpoint['handlers']['checkout'] = async ({
   const customerId =
     customerToken && (await getCustomerId({ customerToken, config }))
 
+  let checkoutUrl
+
   //if there is a customer create a jwt token
   if (!customerId) {
+    checkoutUrl = data.checkout_url
     if (fullCheckout) {
       res.redirect(data.checkout_url)
       return
@@ -42,15 +45,15 @@ const checkout: CheckoutEndpoint['handlers']['checkout'] = async ({
       store_hash: config.storeHash,
       customer_id: customerId,
       channel_id: config.storeChannelId,
-      redirect_to: data.checkout_url,
+      redirect_to: fullCheckout ? data.checkout_url : data.embedded_checkout_url,
     }
     let token = jwt.sign(payload, config.storeApiClientSecret!, {
       algorithm: 'HS256',
     })
-    let checkouturl = `${config.storeUrl}/login/token/${token}`
-    console.log('checkouturl', checkouturl)
+    checkoutUrl = `${config.storeUrl}/login/token/${token}`
+    console.log('checkouturl', checkoutUrl)
     if (fullCheckout) {
-      res.redirect(checkouturl)
+      res.redirect(checkoutUrl)
       return
     }
   }
@@ -69,7 +72,7 @@ const checkout: CheckoutEndpoint['handlers']['checkout'] = async ({
                checkoutKitLoader.load('checkout-sdk').then(function (service) {
                  service.embedCheckout({
                    containerId: 'checkout',
-                   url: '${data.embedded_checkout_url}'
+                   url: '${checkoutUrl}'
                  });
                });
              }
