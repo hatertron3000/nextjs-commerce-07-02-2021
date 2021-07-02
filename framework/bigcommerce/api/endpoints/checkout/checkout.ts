@@ -29,7 +29,8 @@ const checkout: CheckoutEndpoint['handlers']['checkout'] = async ({
   let checkoutUrl
 
   //if there is a customer create a jwt token
-  if (!customerId) {
+  // note getCustomerId will return "undefined" as a string if shopper has logged out on checkout but not Next
+  if (!customerId || customerId === "undefined") {
     if (fullCheckout) {
       res.redirect(data.checkout_url)
       return
